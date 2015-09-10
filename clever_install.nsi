@@ -121,6 +121,7 @@ Section Install
 SectionEnd
 
 Section "Uninstall"
+	ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --stop";
 	ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --uninstall";
 	RMDir /r "$INSTDIR"
 	DeleteRegKey HKLM "${ARP}"	
