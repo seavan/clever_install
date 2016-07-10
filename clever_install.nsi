@@ -1,7 +1,7 @@
 !define APPNAME "CleverRus Toolset"
 !define COMPANYNAME "Clever Distribution, LLC"
 !define VERSIONMAJOR 0
-!define VERSIONMINOR 1
+!define VERSIONMINOR 2
 !define VERSIONBUILD 1
 
 !include "MUI2.nsh"
@@ -11,8 +11,9 @@
 !include "LogicLib.nsh"
 !define ARP "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
 !include "FileFunc.nsh"
- 
-Name "Clever Toolset 0.1"
+!include x64.nsh
+
+Name "Clever Toolset 0.2"
 OutFile "clever_install.exe"
 RequestExecutionLevel admin
 
@@ -21,9 +22,9 @@ XPStyle on
 Var Dialog
 Var Text
 Var Label
-Var /Global Hostname
+; Var /Global Hostname
 
-Page custom nsDialogsHostName nsDialogsHostNameLeave
+; Page custom nsDialogsHostName nsDialogsHostNameLeave
 Page instfiles
 
 
@@ -68,21 +69,21 @@ Function getHostName
 	return
 FunctionEnd
 
-Function nsDialogsHostName
-	nsDialogs::Create 1018
-	Pop $Dialog
-	Call getHostName
-	Pop $0	
-	${NSD_CreateLabel} 0 0 100% 12u $(Label_Host)
-	Pop $Label	
-	${NSD_CreateText} 0 13u 100% 12u "$0"
-	Pop $Text
-	nsDialogs::Show
-FunctionEnd
+;Function nsDialogsHostName
+;	nsDialogs::Create 1018
+;	Pop $Dialog
+;	Call getHostName
+;	Pop $0	
+;	${NSD_CreateLabel} 0 0 100% 12u $(Label_Host)
+;	Pop $Label	
+;	${NSD_CreateText} 0 13u 100% 12u "$0"
+;	Pop $Text
+;	nsDialogs::Show
+;FunctionEnd
 
-Function nsDialogsHostNameLeave
-	${NSD_GetText} $Text $Hostname
-FunctionEnd
+; Function nsDialogsHostNameLeave
+; 	${NSD_GetText} $Text $Hostname
+; FunctionEnd
 
 
 Section ZabbixAgent
@@ -94,7 +95,7 @@ Section ZabbixAgent
 	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "LogFile=c:\zabbix_agentd.log" "LogFile=$INSTDIR\zabbix\log\zabbix_agentd.log"	
 	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "Server=127.0.0.1" "Server=srv-zabbix-01.erevan.biz"	
 	
-	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "Hostname=Windows host" "Hostname=$Hostname"
+;	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "Hostname=Windows host" "Hostname=$Hostname"
 	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "ServerActive=127.0.0.1" "ServerActive=srv-zabbix-01.erevan.biz"
 SectionEnd
 
@@ -115,14 +116,23 @@ Section Install
 	IntFmt $0 "0x%08X" $0
 	WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"
 	
-	ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --install --config $INSTDIR\zabbix\conf\zabbix_agentd.conf"
-	ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --start"
-	
+	${If} ${RunningX64}
+		ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --install --config $INSTDIR\zabbix\conf\zabbix_agentd.conf"
+		ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --start"
+	${Else}
+		ExecWait "$INSTDIR\zabbix\bin\win32\zabbix_agentd.exe --install --config $INSTDIR\zabbix\conf\zabbix_agentd.conf"
+		ExecWait "$INSTDIR\zabbix\bin\win32\zabbix_agentd.exe --start"
+	${EndIf}  	
 SectionEnd
 
 Section "Uninstall"
-	ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --stop";
-	ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --uninstall";
+	${If} ${RunningX64}
+		ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --stop";
+		ExecWait "$INSTDIR\zabbix\bin\win64\zabbix_agentd.exe --uninstall";
+	${Else}
+		ExecWait "$INSTDIR\zabbix\bin\win32\zabbix_agentd.exe --stop";
+		ExecWait "$INSTDIR\zabbix\bin\win32\zabbix_agentd.exe --uninstall";
+	${EndIf}  	
 	RMDir /r "$INSTDIR"
 	DeleteRegKey HKLM "${ARP}"	
 SectionEnd
