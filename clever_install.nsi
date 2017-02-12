@@ -92,6 +92,7 @@ Section ZabbixAgent
 	SetOutPath "$INSTDIR\zabbix"
 	File /r zabbix\*.*
 	Rename  conf\zabbix_agentd.win.conf  conf\zabbix_agentd.conf
+	CreateDirectory "$INSTDIR\zabbix\conf\zabbix_agentd.conf.d"
 	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "LogFile=c:\zabbix_agentd.log" "LogFile=$INSTDIR\zabbix\log\zabbix_agentd.log"	
 	!insertmacro _ReplaceInFile conf\zabbix_agentd.conf "Server=127.0.0.1" "Server=srv-zabbix-01.erevan.biz"	
 	
