@@ -4,6 +4,7 @@ mkdir build
 
 xcopy zabbix build\zabbix /e /i
 xcopy procexp build\procexp /e /i
+xcopy gethostname build\gethostname /e /i
 
 copy clever_install.nsi build
 

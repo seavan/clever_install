@@ -1,0 +1,1 @@
+powershell -NonInteractive ((Get-WmiObject win32_computersystem).DNSHostName+'.'+(Get-WmiObject win32_computersystem).Domain).ToLower() > .\zabbix-fqdn

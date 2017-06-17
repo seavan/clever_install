@@ -64,10 +64,10 @@ done:
  
 FunctionEnd
 
-Function getHostName 
-	ReadRegStr $0 HKLM "System\CurrentControlSet\Control\ComputerName\ActiveComputerName" "ComputerName"
-	return
-FunctionEnd
+; Function getHostName 
+;	ReadRegStr $0 HKLM "System\CurrentControlSet\Control\ComputerName\ActiveComputerName" "ComputerName"
+;	return
+; FunctionEnd
 
 ;Function nsDialogsHostName
 ;	nsDialogs::Create 1018
@@ -86,8 +86,14 @@ FunctionEnd
 ; FunctionEnd
 
 
-Section ZabbixAgent
+Section GetHostNameScript
 	StrCpy $INSTDIR "C:\cltools"
+	SetOutPath "$INSTDIR\gethostname"
+	File /r gethostname\*.*
+	ExecWait "$INSTDIR\gethostname\gethostname.bat"
+SectionEnd
+
+Section ZabbixAgent
 	RMDir /r "$INSTDIR\zabbix"	
 	SetOutPath "$INSTDIR\zabbix"
 	File /r zabbix\*.*
